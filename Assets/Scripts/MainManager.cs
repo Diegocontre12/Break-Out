@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
@@ -11,6 +12,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text nameText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -22,6 +24,20 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
+        if (MainManagerx.Instance != null)
+        {
+            
+            MainManagerx.Instance.LoadNameHig();
+            MainManagerx.Instance.LoadCurrentName();
+            MainManagerx.Instance.LoadHightScore();
+            string playerName = MainManagerx.Instance.playerNameHig;
+            int hscore = MainManagerx.Instance.HigPlayerScore;
+            nameText.text = "Best Score " + playerName + ": " + hscore;
+            Debug.Log("mayor puntaje " + hscore);
+
+        }
+        
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -40,6 +56,16 @@ public class MainManager : MonoBehaviour
 
     private void Update()
     {
+        if (m_Points> MainManagerx.Instance.HigPlayerScore)
+        {
+            nameText.text = "Best Score " + MainManagerx.Instance.playerName + ": " + m_Points;
+        }
+        else
+        {
+            nameText.text = "Best Score " + MainManagerx.Instance.playerNameHig + ": " + MainManagerx.Instance.HigPlayerScore;
+        }
+       
+
         if (!m_Started)
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -57,6 +83,7 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
+               
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
@@ -65,12 +92,23 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
+        
         ScoreText.text = $"Score : {m_Points}";
     }
 
     public void GameOver()
     {
+        if (m_Points > MainManagerx.Instance.HigPlayerScore)
+        {
+            Debug.Log("currentPoints" + m_Points);
+            MainManagerx.Instance.SaveHigScore(m_Points);
+            MainManagerx.Instance.SaveNameHig(MainManagerx.Instance.playerName);
+        }
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 }
